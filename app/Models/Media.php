@@ -17,4 +17,9 @@ class Media extends Model
         'user_id',
     ];
 
+    public function users()
+    {
+        $this->belongsTo(User::class);
+    }
+
 }
