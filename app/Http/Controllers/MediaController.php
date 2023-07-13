@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Media;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class MediaController extends Controller
 {
@@ -13,9 +14,8 @@ class MediaController extends Controller
      */
     public function index()
     {
-        $users = User::all();
-
-        return view('users', compact('users'));
+        $media = Media::all();
+        return view('media', compact('media'));
     }
 
     /**
@@ -23,7 +23,8 @@ class MediaController extends Controller
      */
     public function create()
     {
-        //
+        $media = Media::create(request()->all());
+        return $media;
     }
 
     /**
@@ -31,7 +32,23 @@ class MediaController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validatedData = $request->validate(
+            [
+                'title' => 'required',
+                'description' => 'required',
+                'type' => 'nullable',
+                'year' => 'required|email|unique:users',
+            ],
+        );
+
+        $media = new Media();
+        $media->title = $request->input('title');
+        $media->description = $request->input('description');
+        $media->type = $request->input('type');
+        $media->year = $request->input('year');        // Save user to database
+        $media->save();
+        // Redirect to the users page
+        return redirect()->route('media')->with('status', 'User created successfully!');
     }
 
     /**
@@ -39,7 +56,7 @@ class MediaController extends Controller
      */
     public function show(string $id)
     {
-        //
+        return Media::findOrFail($id);
     }
 
     /**
@@ -47,7 +64,8 @@ class MediaController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $media = Media::findOrFail($id);
+        return view('media.edit', compact('media'));
     }
 
     /**
@@ -63,6 +81,7 @@ class MediaController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        Media::destroy($id);
+        return redirect()->route('media'); 
     }
 }
